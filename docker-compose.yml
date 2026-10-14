@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: codeforge-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_WS_URL=ws://localhost:3001
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - codeforge-net
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: codeforge-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://codeforge:forge_secret@postgres:5432/codeforge_db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - codeforge-net
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: codeforge-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - codeforge-net
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: codeforge-postgres
+    environment:
+      POSTGRES_USER: codeforge
+      POSTGRES_PASSWORD: forge_secret
+      POSTGRES_DB: codeforge_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - codeforge-net
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  codeforge-net:
+    driver: bridge

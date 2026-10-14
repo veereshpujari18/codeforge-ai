@@ -1,0 +1,6 @@
+{
+  "name": "CodeForge AI",
+  "description": "Enterprise-grade AI coding assistant blending cinematic 3D visualization, intelligent code generation, RAG project understanding, and a full-featured developer IDE.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
